@@ -28,7 +28,8 @@ mongoose.connect("mongodb://localhost:27017/userDB",{useNewUrlParser:true,useUni
 const userSchema=new mongoose.Schema({
   email:String,
   password:String,
-  googleId:String
+  googleId:String,
+  secret:String
 });
 userSchema.plugin(passportLocalMongoose);
 userSchema.plugin(findOrCreate);
