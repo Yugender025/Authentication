@@ -81,12 +81,16 @@ app.get("/register",function(req,res){
   res.render("register");
 });
 app.get("/secrets",function(req,res){
-  if(req.isAuthenticated()){
-    res.render("secrets");
+ User.find({"secret":{$ne:null}},function(err,foundUsers){
+  if(err){
+     console.log(err);
   }else{
-    res.redirect("/login");
+    if(foundUsers){
+      res.render("secrets",{usersWithSecrets:foundUsers});
+    }
   }
-})
+ });
+});
 app.post("/register",function(req,res){
  User.register({username:req.body.username},req.body.password,function(err,user){
    if(err){
@@ -116,7 +120,28 @@ app.post("/login",function(req,res){
   });
 });
 app.get("/submit",function(req,res){
-     res.render("home");
+  if(req.isAuthenticated()){
+    res.render("submit");
+  }else{
+    res.redirect("/login");
+  }
+     
+});
+app.post("/submit",function(req,res){
+ const submittedSecret= req.body.secret;
+ console.log(req.user.id);
+ User.findById(req.user.id,function(err,foundUsers){
+  if(err){
+    console.log(err);
+  }else{
+    if(foundUsers){
+      foundUsers.secret=submittedSecret;
+      foundUsers.save(function(){
+        res.redirect("/secrets");
+      });
+    }
+  }
+ });
 });
 app.get("/logout",function(req,res){
   req.logout(function(err){
@@ -128,9 +153,7 @@ app.get("/logout",function(req,res){
   });
 //update
 });
-app.post("/submit",function(req,res){
-  req.body.secret;
-})
+
 app.listen(3000,function(){
   console.log("port sucessfully working");
 });
